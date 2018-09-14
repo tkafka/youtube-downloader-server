@@ -1,0 +1,26 @@
+{
+  "apps": [
+    {
+      "name": "youtube-downloader",
+      "script": "./index.js",
+      "env": {
+        "PORT": "5555"
+      },
+      "__comment": "env.DEBUG: express:*,*",
+      "env_production": {
+        "NODE_ENV": "production"
+      }
+    }
+  ],
+  "deploy": {
+    "vpsdime": {
+      "host": "23.92.54.180",
+      "port": "6789",
+      "user": "www",
+      "ref": "origin/master",
+      "repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
+      "path": "/home/www/youtube-downloader",
+      "post-deploy": "npm install && pm2 startOrGracefulReload ./ecosystem.json --env production && pm2 save"
+    }
+  }
+}
