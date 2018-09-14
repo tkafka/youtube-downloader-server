@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
 	var error = null;
 	var videoId = null;
 
-	if (typeof req.query.url === 'string') {
+	if (typeof req.query.url === 'string' && req.query.url !== "") {
 		if (ytdl.validateURL(req.query.url)) {
 			videoId = ytdl.getVideoID(req.query.url);
 		} else {
