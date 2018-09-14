@@ -2,9 +2,7 @@
 
 Really simple youtube downloader as a expresss-powered website using [ytdl-core](https://github.com/fent/node-ytdl-core).
 
-Pass youtube url in ?url=... parameter (to directly call eg. from bookmarklet).
-
-When there isn't a valid youtube video url in `url` parameter, displays an input form.
+Pass youtube video url in ?url=... parameter (to directly call eg. from bookmarklet), or open a page and paste youtube link into the form. Get highest quality mp4 video available.
 
 ## Install and run
 
