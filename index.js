@@ -2,7 +2,6 @@ const ytdl = require('ytdl-core');
 const express = require('express');
 const escape = require('html-escape');
 const slug = require('slug');
-const url = require('url');
 const app = express();
 
 app.get('/', (req, res) => {
