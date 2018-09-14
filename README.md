@@ -13,3 +13,7 @@ Pass youtube video url in ?url=... parameter (to directly call eg. from bookmark
 Set up port like this
 
 > PORT=3001 npm start
+
+## Fork and tweak
+
+Everything is in `index.js` :).
