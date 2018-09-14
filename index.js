@@ -6,12 +6,33 @@ const app = express();
 
 app.get('/', (req, res) => {
 	var videoId = null;
-	if (ytdl.validateURL(req.query.url)) {
+	if (typeof req.query.url === 'string' && ytdl.validateURL(req.query.url)) {
 		videoId = ytdl.getVideoID(req.query.url);
 	}
 
 	if (!videoId) {
-		res.status(400).send("Video not found.\nUsage: ?url=<youtube url>");
+		// res.status(400).send("Video not found.\nUsage: ?url=<youtube url>");
+		res.status(400).send(`<!doctype html>
+			<html>
+				<head>
+					<title>YT downloader</title>
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<style>
+						body, html, input { font-size: 1rem; line-height: 1.75rem; }
+						body { margin: 1em; }
+						input { display: inline-block; background: white; color: black; border: 1px solid #ddd; border-radius: 4px; margin: 0 .5rem .5rem; padding: 0.25rem 0.5rem; }
+						input[type="url"] { width: 30em; max-width: 90%; }
+						input[type="submit"] {  background: #f4f4f4; }
+					</style>
+				</head>
+				<body>
+					<form method="get">
+						<input name="url" type="url" placeholder="Paste Youtube URL here ..." />
+						<input name="submit" type="submit" value="Download" />
+					</form>
+				</body>
+			</html>
+		`);
 		return;
 	}
 
