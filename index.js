@@ -1,13 +1,20 @@
 const ytdl = require('ytdl-core');
 const express = require('express');
+const escape = require('html-escape');
 const slug = require('slug');
 const url = require('url');
 const app = express();
 
 app.get('/', (req, res) => {
+	var error = null;
 	var videoId = null;
-	if (typeof req.query.url === 'string' && ytdl.validateURL(req.query.url)) {
-		videoId = ytdl.getVideoID(req.query.url);
+
+	if (typeof req.query.url === 'string') {
+		if (ytdl.validateURL(req.query.url)) {
+			videoId = ytdl.getVideoID(req.query.url);
+		} else {
+			error = `I couldn't get youtube video id from "${escape(req.query.url)}", check the address.`;
+		}
 	}
 
 	if (!videoId) {
@@ -23,11 +30,13 @@ app.get('/', (req, res) => {
 						input { display: inline-block; background: white; color: black; border: 1px solid #ddd; border-radius: 4px; margin: 0 .5rem .5rem; padding: 0.25rem 0.5rem; }
 						input[type="url"] { width: 30em; max-width: 90%; }
 						input[type="submit"] {  background: #f4f4f4; }
+						.error { color: red; }
 					</style>
 				</head>
 				<body>
+					${error ? '<p class="error">'+error+'</p>' : ''}
 					<form method="get">
-						<input name="url" type="url" placeholder="Paste Youtube URL here ..." />
+						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${req.query.url ? escape(req.query.url) : ''}" />
 						<input name="submit" type="submit" value="Download" />
 					</form>
 				</body>
