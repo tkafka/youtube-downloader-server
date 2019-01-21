@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 					<title>YT downloader</title>
 					<meta name="viewport" content="width=device-width, initial-scale=1.0">
 					<style>
-						body, html, input { font-size: 1rem; line-height: 1.75rem; }
+						body, html, input { font-family: sans-serif; font-size: 1rem; line-height: 1.75rem; }
 						body { margin: 1em; }
 						input { display: inline-block; background: white; color: black; border: 1px solid #ddd; border-radius: 4px; margin: 0 .5rem .5rem; padding: 0.25rem 0.5rem; }
 						input[type="url"] { width: 30em; max-width: 90%; }
@@ -37,6 +37,22 @@ app.get('/', (req, res) => {
 					<form method="get">
 						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${req.query.url ? escape(req.query.url) : ''}" />
 						<input name="submit" type="submit" value="Download" />
+						
+						<br /><input type="radio" name="quality" value="highest" id="quality-highest" checked="${req.query.quality == 'highest' ? 'checked' : ''}" /> <label for="quality-highest">Highest quality</label>
+
+						<br /><input type="radio" name="quality" value="1080p" id="quality-1080p" checked="${req.query.quality == '1080p' ? 'checked' : ''}" /> <label for="quality-1080p">1080p</label>
+
+						<br /><input type="radio" name="quality" value="720p" id="quality-720p" checked="${req.query.quality == '720p' ? 'checked' : ''}" /> <label for="quality-720p">720p</label>
+						
+						<br /><input type="radio" name="quality" value="480p" id="quality-480p" checked="${req.query.quality == '480p' ? 'checked' : ''}" /> <label for="quality-480p">480p</label>
+						
+						<br /><input type="radio" name="quality" value="360p" id="quality-360p" checked="${req.query.quality == '360p' ? 'checked' : ''}" /> <label for="quality-360p">360p</label>
+
+						<br /><input type="radio" name="quality" value="240p" id="quality-240p" checked="${req.query.quality == '240p' ? 'checked' : ''}" /> <label for="quality-240p">240p</label>
+						
+						<!--
+						<br /><input type="radio" name="quality" value="lowest" id="quality-lowest" checked="${req.query.quality == 'lowest' ? 'checked' : ''}" /> <label for="quality-lowest">Lowest quality</label>
+						-->
 					</form>
 				</body>
 			</html>
@@ -47,8 +63,19 @@ app.get('/', (req, res) => {
 	console.log(videoId, 'Getting video');
 
 	let options = {
-		quality: req.query.quality || 'highest',
-		filter: (format) => format.container === 'mp4',
+		quality: 
+			req.query.quality.match(/^(240|360|480)p$/) ? 'lowest' : 'highest',
+		filter: (format) => { 
+			let matchingFormat = format.container === 'mp4';
+			let matchingQuality = true;
+			if (req.query.quality.match(/^[0-9]+p$/)) {
+				matchingQuality = format.resolution === req.query.quality;
+			}
+			if (matchingQuality && matchingFormat) {
+				console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
+			}
+			return matchingQuality && matchingFormat;
+		},
 		format: req.query.format || undefined,
 	};
 
@@ -63,7 +90,7 @@ app.get('/', (req, res) => {
 		res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
 
 		// console.log(videoId, 'info', info); 
-		console.log(videoId, 'info', name); 
+		console.log(videoId, 'info', name /*, info  */); 
 	});
 	stream.on('response', (response) => {
 		if (response.headers['content-length']) {
