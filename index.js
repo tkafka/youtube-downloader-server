@@ -72,7 +72,7 @@ app.get('/', (req, res) => {
 				matchingQuality = format.resolution === req.query.quality;
 			}
 			if (matchingQuality && matchingFormat) {
-				console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
+				// console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
 			}
 			return matchingQuality && matchingFormat;
 		},
@@ -90,7 +90,7 @@ app.get('/', (req, res) => {
 		res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
 
 		// console.log(videoId, 'info', info); 
-		console.log(videoId, 'info', name /*, info  */); 
+		console.log(videoId, 'info', ', name=', name, ', info=', info); 
 	});
 	stream.on('response', (response) => {
 		if (response.headers['content-length']) {
