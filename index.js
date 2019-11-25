@@ -90,7 +90,7 @@ app.get('/', (req, res) => {
 		res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
 
 		// console.log(videoId, 'info', info); 
-		console.log(videoId, 'info', ', name=', name, ', info=', info); 
+		console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
 	});
 	stream.on('response', (response) => {
 		if (response.headers['content-length']) {
