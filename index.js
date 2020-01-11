@@ -17,6 +17,9 @@ app.get('/', (req, res) => {
 	}
 
 	if (!videoId) {
+		if (!req.query.quality) {
+			req.query.quality = 'highest';
+		}
 		// res.status(400).send("Video not found.\nUsage: ?url=<youtube url>");
 		res.status(400).send(`<!doctype html>
 			<html>
@@ -34,24 +37,25 @@ app.get('/', (req, res) => {
 				</head>
 				<body>
 					${error ? '<p class="error">'+error+'</p>' : ''}
+					${req.query.quality}
 					<form method="get">
 						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${req.query.url ? escape(req.query.url) : ''}" />
 						<input name="submit" type="submit" value="Download" />
 						
-						<br /><input type="radio" name="quality" value="highest" id="quality-highest" checked="${req.query.quality == 'highest' ? 'checked' : ''}" /> <label for="quality-highest">Highest quality</label>
+						<br /><input type="radio" name="quality" value="highest" id="quality-highest" ${req.query.quality == 'highest' ? 'checked="checked"' : ''} /> <label for="quality-highest">Highest quality</label>
 
-						<br /><input type="radio" name="quality" value="1080p" id="quality-1080p" checked="${req.query.quality == '1080p' ? 'checked' : ''}" /> <label for="quality-1080p">1080p</label>
+						<br /><input type="radio" name="quality" value="1080p" id="quality-1080p" ${req.query.quality == '1080p' ? 'checked="checked"' : ''} /> <label for="quality-1080p">1080p</label>
 
-						<br /><input type="radio" name="quality" value="720p" id="quality-720p" checked="${req.query.quality == '720p' ? 'checked' : ''}" /> <label for="quality-720p">720p</label>
+						<br /><input type="radio" name="quality" value="720p" id="quality-720p" ${req.query.quality == '720p' ? 'checked="checked"' : ''} /> <label for="quality-720p">720p</label>
 						
-						<br /><input type="radio" name="quality" value="480p" id="quality-480p" checked="${req.query.quality == '480p' ? 'checked' : ''}" /> <label for="quality-480p">480p</label>
+						<br /><input type="radio" name="quality" value="480p" id="quality-480p" ${req.query.quality == '480p' ? 'checked="checked"' : ''} /> <label for="quality-480p">480p</label>
 						
-						<br /><input type="radio" name="quality" value="360p" id="quality-360p" checked="${req.query.quality == '360p' ? 'checked' : ''}" /> <label for="quality-360p">360p</label>
+						<br /><input type="radio" name="quality" value="360p" id="quality-360p" ${req.query.quality == '360p' ? 'checked="checked"' : ''} /> <label for="quality-360p">360p</label>
 
-						<br /><input type="radio" name="quality" value="240p" id="quality-240p" checked="${req.query.quality == '240p' ? 'checked' : ''}" /> <label for="quality-240p">240p</label>
+						<br /><input type="radio" name="quality" value="240p" id="quality-240p" ${req.query.quality == '240p' ? 'checked="checked"' : ''} /> <label for="quality-240p">240p</label>
 						
 						<!--
-						<br /><input type="radio" name="quality" value="lowest" id="quality-lowest" checked="${req.query.quality == 'lowest' ? 'checked' : ''}" /> <label for="quality-lowest">Lowest quality</label>
+						<br /><input type="radio" name="quality" value="lowest" id="quality-lowest" ${req.query.quality == 'lowest' ? 'checked="checked"' : ''} : ''}" /> <label for="quality-lowest">Lowest quality</label>
 						-->
 					</form>
 				</body>
@@ -64,12 +68,12 @@ app.get('/', (req, res) => {
 
 	let options = {
 		quality: 
-			req.query.quality.match(/^(240|360|480)p$/) ? 'lowest' : 'highest',
+		req.query.quality.match(/^(240|360|480|1080)p$/) ? req.query.quality : 'highest',
 		filter: (format) => { 
 			let matchingFormat = format.container === 'mp4';
 			let matchingQuality = true;
 			if (req.query.quality.match(/^[0-9]+p$/)) {
-				matchingQuality = format.resolution === req.query.quality;
+				matchingQuality = format.qualityLabel === req.query.quality;
 			}
 			if (matchingQuality && matchingFormat) {
 				// console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
@@ -78,6 +82,7 @@ app.get('/', (req, res) => {
 		},
 		format: req.query.format || undefined,
 	};
+	console.log(options)
 
 	const stream = ytdl(req.query.url, options);
 
