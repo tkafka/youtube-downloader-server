@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 				</head>
 				<body>
 					${error ? '<p class="error">'+error+'</p>' : ''}
-					${req.query.quality}
+					${req.query.quality ? '<p class="error">Quality: ' +req.query.quality+'</p>' : ''}
 					<form method="get">
 						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${req.query.url ? escape(req.query.url) : ''}" />
 						<input name="submit" type="submit" value="Download" />
