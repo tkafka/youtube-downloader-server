@@ -32,8 +32,8 @@ app.get('/', (req, res) => {
 						input { display: inline-block; background: white; color: black; border: 1px solid #ddd; border-radius: 4px; margin: 0 .5rem .5rem; padding: 0.25rem 0.5rem; }
 						input[type="url"] { width: 30em; max-width: 90%; }
 						input[type="submit"] {  background: #f4f4f4; }
-						.error { color: red; }
-						.info { color: gray; }
+						.error { color: red; padding: 0 .5em; }
+						.info { color: gray; padding: 0 .5em; }
 					</style>
 				</head>
 				<body>
