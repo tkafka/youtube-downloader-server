@@ -20,25 +20,7 @@
       "ref": "origin/master",
       "repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
       "path": "/home/www/youtube-downloader",
-      "post-deploy": "yarn && /usr/bin/pm2 startOrGracefulReload ./ecosystem.json --env production && /usr/bin/pm2 save"
-    },
-		"tna": {
-      "host": "185.172.165.81",
-      "port": "22",
-      "user": "www",
-      "ref": "origin/master",
-      "repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
-      "path": "/home/www/youtube-downloader",
-      "post-deploy": "yarn && /usr/local/lib/npm/bin/pm2 startOrGracefulReload ./ecosystem.json --env production && /usr/local/lib/npm/bin/pm2 save"
-    },
-    "vpsdime": {
-      "host": "23.92.54.180",
-      "port": "6789",
-      "user": "www",
-      "ref": "origin/master",
-      "repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
-      "path": "/home/www/youtube-downloader",
-      "post-deploy": "npm install && pm2 startOrGracefulReload ./ecosystem.json --env production && pm2 save"
+      "post-deploy": "npm ci && /usr/bin/pm2 startOrGracefulReload ./ecosystem.json --env production && /usr/bin/pm2 save"
     }
   }
 }
