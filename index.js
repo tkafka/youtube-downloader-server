@@ -32,12 +32,13 @@ app.get('/', (req, res) => {
 						input { display: inline-block; background: white; color: black; border: 1px solid #ddd; border-radius: 4px; margin: 0 .5rem .5rem; padding: 0.25rem 0.5rem; }
 						input[type="url"] { width: 30em; max-width: 90%; }
 						input[type="submit"] {  background: #f4f4f4; }
-						.error { color: red; }
+						.error { color: red; padding: 0 .5em; }
+						.info { color: gray; padding: 0 .5em; }
 					</style>
 				</head>
 				<body>
 					${error ? '<p class="error">'+error+'</p>' : ''}
-					${req.query.quality}
+					${req.query.quality ? '<p class="info">Quality: ' +req.query.quality+'</p>' : ''}
 					<form method="get">
 						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${req.query.url ? escape(req.query.url) : ''}" />
 						<input name="submit" type="submit" value="Download" />
