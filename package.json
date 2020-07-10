@@ -13,6 +13,6 @@
     "express": "^4.17.1",
     "html-escape": "^2.0.0",
     "slug": "^3.3.0",
-    "ytdl-core": "^2.1.7"
+    "ytdl-core": "^3.1.2"
   }
 }
