@@ -95,7 +95,9 @@ app.get('/', (req, res) => {
 
 	const stream = ytdl(videoUrl, options);
 
+	var sentData = false;
 	stream.on('error', (error) => {
+		sentData = true;
 		res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`);
 	});
 	stream.on('info', (info) => {
@@ -104,17 +106,21 @@ app.get('/', (req, res) => {
 		if (info.videoDetails && info.videoDetails.title) {
 			name = slug(info.videoDetails.title);
 		}
-		res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
+		if (!sentData) {
+			res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
+		}
 
 		// console.log(videoId, 'info', info); 
 		console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
 	});
 	stream.on('response', (response) => {
-		if (response.headers['content-length']) {
-			res.setHeader('Content-length', response.headers['content-length']);
-		}
-		if (response.headers['content-type']) {
-			res.setHeader('Content-type', response.headers['content-type']);
+		if (!sentData) {
+			if (response.headers['content-length']) {
+				res.setHeader('Content-length', response.headers['content-length']);
+			}
+			if (response.headers['content-type']) {
+				res.setHeader('Content-type', response.headers['content-type']);
+			}
 		}
 		console.log(videoId, 'response', response.headers['content-type'], response.headers['content-length']);
 	});
