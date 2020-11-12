@@ -7,12 +7,14 @@ const app = express();
 app.get('/', (req, res) => {
 	var error = null;
 	var videoId = null;
+	var videoUrl = null;
 
 	if (typeof req.query.url === 'string' && req.query.url !== "") {
-		if (ytdl.validateURL(req.query.url)) {
-			videoId = ytdl.getVideoID(req.query.url);
+		videoUrl = decodeURIComponent(req.query.url);
+		if (ytdl.validateURL(videoUrl)) {
+			videoId = ytdl.getVideoID(videoUrl);
 		} else {
-			error = `I couldn't get youtube video id from "${escape(req.query.url)}", check the address.`;
+			error = `I couldn't get youtube video id from "${escape(videoUrl)}", check the address.`;
 		}
 	}
 
@@ -21,7 +23,8 @@ app.get('/', (req, res) => {
 			req.query.quality = 'highest';
 		}
 		// res.status(400).send("Video not found.\nUsage: ?url=<youtube url>");
-		res.status(400).send(`<!doctype html>
+		let statusCode = error ? 400 : 200;
+		res.status(statusCode).send(`<!doctype html>
 			<html>
 				<head>
 					<title>YT downloader</title>
@@ -40,7 +43,7 @@ app.get('/', (req, res) => {
 					${error ? '<p class="error">'+error+'</p>' : ''}
 					${req.query.quality ? '<p class="info">Quality: ' +req.query.quality+'</p>' : ''}
 					<form method="get">
-						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${req.query.url ? escape(req.query.url) : ''}" />
+						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${videoUrl ? encodeURIComponent(videoUrl) : ''}" />
 						<input name="submit" type="submit" value="Download" />
 						
 						<br /><input type="radio" name="quality" value="highest" id="quality-highest" ${req.query.quality == 'highest' ? 'checked="checked"' : ''} /> <label for="quality-highest">Highest quality</label>
@@ -67,13 +70,13 @@ app.get('/', (req, res) => {
 
 	console.log(videoId, 'Getting video');
 
+	let desiredQuality = (req.query.quality && req.query.quality.match(/^(240|360|480|1080)p$/)) ? req.query.quality : 'highest';
 	let options = {
-		quality: 
-		req.query.quality.match(/^(240|360|480|1080)p$/) ? req.query.quality : 'highest',
+		quality: desiredQuality,
 		filter: (format) => { 
 			let matchingFormat = format.container === 'mp4';
 			let matchingQuality = true;
-			if (req.query.quality.match(/^[0-9]+p$/)) {
+			if (desiredQuality.match(/^[0-9]+p$/)) {
 				matchingQuality = format.qualityLabel === req.query.quality;
 			}
 			if (matchingQuality && matchingFormat) {
@@ -85,13 +88,13 @@ app.get('/', (req, res) => {
 	};
 	console.log(options)
 
-	const stream = ytdl(req.query.url, options);
+	const stream = ytdl(videoUrl, options);
 
 	stream.on('info', (info) => {
 		// info.title;
 		let name = 'yt-' + videoId;
-		if (info.title) {
-			name = slug(info.title);
+		if (info.videoDetails && info.videoDetails.title) {
+			name = slug(info.videoDetails.title);
 		}
 		res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
 
@@ -114,5 +117,5 @@ app.get('/', (req, res) => {
 const port = process.env.PORT || 3000;
 app.listen(port, () => { 
 	console.log(`Listening on http://localhost:${port}`); 
-	console.log(`Try eg. http://localhost:${port}?url=https://www.youtube.com/watch?v=e0UWT0dFSQE`); 
+	console.log(`Try eg. http://localhost:${port}?url=${encodeURIComponent('https://www.youtube.com/watch?v=e0UWT0dFSQE')}`); 
 });
