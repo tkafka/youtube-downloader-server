@@ -101,7 +101,9 @@ app.get('/', (req, res) => {
 	stream.on('error', (error) => {
 		sentError = true;
 		console.error(JSON.stringify(error, null, 2));
-		res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`);
+		if (!setInfoHeaders && !setResponseHeaders) {
+			res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`);
+		}
 	});
 	stream.on('info', (info) => {
 		if (!setInfoHeaders && !sentError) {
