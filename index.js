@@ -95,35 +95,38 @@ app.get('/', (req, res) => {
 
 	const stream = ytdl(videoUrl, options);
 
-	var sentData = false;
+	var sentError = false;
+	var setInfoHeaders = false;
+	var setResponseHeaders = false;
 	stream.on('error', (error) => {
-		sentData = true;
+		sentError = true;
 		console.error(JSON.stringify(error, null, 2));
 		res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`);
 	});
 	stream.on('info', (info) => {
-		// info.title;
-		let name = 'yt-' + videoId;
-		if (info.videoDetails && info.videoDetails.title) {
-			name = slug(info.videoDetails.title);
-		}
-		if (!sentData) {
+		if (!setInfoHeaders && !sentError) {
+			// info.title;
+			let name = 'yt-' + videoId;
+			if (info.videoDetails && info.videoDetails.title) {
+				name = slug(info.videoDetails.title);
+			}
 			res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
+			// console.log(videoId, 'info', info); 
+			console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
 		}
-
-		// console.log(videoId, 'info', info); 
-		console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
+		setInfoHeaders = true;
 	});
 	stream.on('response', (response) => {
-		if (!sentData) {
+		if (!setResponseHeaders && !sentError) {
 			if (response.headers['content-length']) {
 				res.setHeader('Content-length', response.headers['content-length']);
 			}
 			if (response.headers['content-type']) {
 				res.setHeader('Content-type', response.headers['content-type']);
 			}
+			console.log(videoId, 'response', response.headers['content-type'], response.headers['content-length']);
 		}
-		console.log(videoId, 'response', response.headers['content-type'], response.headers['content-length']);
+		setResponseHeaders = true;
 	});
 
 	stream.pipe(res);
