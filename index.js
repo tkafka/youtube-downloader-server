@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 
 	if (!videoId) {
 		if (!req.query.quality) {
-			req.query.quality = 'highest';
+			req.query.quality = 'highestvideo';
 		}
 		// res.status(400).send("Video not found.\nUsage: ?url=<youtube url>");
 		let statusCode = error ? 400 : 200;
@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
 						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${videoUrl ? encodeURIComponent(videoUrl) : ''}" />
 						<input name="submit" type="submit" value="Download" />
 						
-						<br /><input type="radio" name="quality" value="highest" id="quality-highest" ${req.query.quality == 'highest' ? 'checked="checked"' : ''} /> <label for="quality-highest">Highest quality</label>
+						<br /><input type="radio" name="quality" value="highestvideo" id="quality-highest" ${req.query.quality == 'highestvideo' ? 'checked="checked"' : ''} /> <label for="quality-highest">Highest quality</label>
 
 						<br /><input type="radio" name="quality" value="1080p" id="quality-1080p" ${req.query.quality == '1080p' ? 'checked="checked"' : ''} /> <label for="quality-1080p">1080p</label>
 
@@ -70,19 +70,24 @@ app.get('/', (req, res) => {
 
 	console.log(videoId, 'Getting video');
 
-	let desiredQuality = (req.query.quality && req.query.quality.match(/^(240|360|480|1080)p$/)) ? req.query.quality : 'highest';
+	var formats = [];
+	let qualityRegex = /^(240|360|480|1080)p$/;
+	let desiredQuality = (req.query.quality && req.query.quality.match(qualityRegex)) ? req.query.quality : 'highestvideo';
 	let options = {
-		quality: desiredQuality,
+		// why not desiredQuality? Because it needs to be an itag (eg. 137), not resolution (eg. 720p) - and we select quality with the filter
+		quality: 'highestvideo', // desiredQuality,
 		filter: (format) => { 
-			let matchingFormat = format.container === 'mp4';
-			let matchingQuality = true;
-			if (desiredQuality.match(/^[0-9]+p$/)) {
-				matchingQuality = format.qualityLabel === req.query.quality;
+			formats.push(`${format.container}-${format.qualityLabel}`);
+			let isVideo = format.hasVideo;
+			let isMatchingFormat = format.container === 'mp4';
+			let isMatchingQuality = true;
+			if (desiredQuality.match(qualityRegex)) {
+				isMatchingQuality = format.qualityLabel === desiredQuality;
 			}
-			if (matchingQuality && matchingFormat) {
-				// console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
-			}
-			return matchingQuality && matchingFormat;
+			// if (isMatchingQuality && isMatchingFormat) {
+			//		console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
+			// }
+			return isMatchingQuality && isMatchingFormat && isVideo;
 		},
 		format: req.query.format || undefined,
 	};
@@ -90,6 +95,9 @@ app.get('/', (req, res) => {
 
 	const stream = ytdl(videoUrl, options);
 
+	stream.on('error', (error) => {
+		res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`);
+	});
 	stream.on('info', (info) => {
 		// info.title;
 		let name = 'yt-' + videoId;
