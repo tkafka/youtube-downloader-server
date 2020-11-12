@@ -111,8 +111,8 @@ app.get('/', (req, res) => {
 				name = slug(info.videoDetails.title);
 			}
 			res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
-			// console.log(videoId, 'info', info); 
-			console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
+			// console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
+			console.log(videoId, 'info', ', name=', name); 
 		}
 		setInfoHeaders = true;
 	});
