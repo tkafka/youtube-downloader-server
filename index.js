@@ -1,29 +1,29 @@
-const ytdl = require('ytdl-core');
-const express = require('express');
-const escape = require('html-escape');
-const slug = require('slug');
-const app = express();
+const ytdl = require('ytdl-core')
+const express = require('express')
+const escape = require('html-escape')
+const slug = require('slug')
+const app = express()
 
 app.get('/', (req, res) => {
-	var error = null;
-	var videoId = null;
-	var videoUrl = null;
+	var error = null
+	var videoId = null
+	var videoUrl = null
 
-	if (typeof req.query.url === 'string' && req.query.url !== "") {
-		videoUrl = decodeURIComponent(req.query.url);
+	if (typeof req.query.url === 'string' && req.query.url !== '') {
+		videoUrl = decodeURIComponent(req.query.url)
 		if (ytdl.validateURL(videoUrl)) {
-			videoId = ytdl.getVideoID(videoUrl);
+			videoId = ytdl.getVideoID(videoUrl)
 		} else {
-			error = `I couldn't get youtube video id from "${escape(videoUrl)}", check the address.`;
+			error = `I couldn't get youtube video id from "${escape(videoUrl)}", check the address.`
 		}
 	}
 
 	if (!videoId) {
 		if (!req.query.quality) {
-			req.query.quality = 'highestvideo';
+			req.query.quality = 'highestvideo'
 		}
 		// res.status(400).send("Video not found.\nUsage: ?url=<youtube url>");
-		let statusCode = error ? 400 : 200;
+		let statusCode = error ? 400 : 200
 		res.status(statusCode).send(`<!doctype html>
 			<html>
 				<head>
@@ -40,13 +40,15 @@ app.get('/', (req, res) => {
 					</style>
 				</head>
 				<body>
-					${error ? '<p class="error">'+error+'</p>' : ''}
-					${req.query.quality ? '<p class="info">Quality: ' +req.query.quality+'</p>' : ''}
+					${error ? '<p class="error">' + error + '</p>' : ''}
+					${req.query.quality ? '<p class="info">Quality: ' + req.query.quality + '</p>' : ''}
 					<form method="get">
 						<input name="url" type="url" placeholder="Paste Youtube URL here ..." value="${videoUrl ? encodeURIComponent(videoUrl) : ''}" />
 						<input name="submit" type="submit" value="Download" />
 						
-						<br /><input type="radio" name="quality" value="highestvideo" id="quality-highest" ${req.query.quality == 'highestvideo' ? 'checked="checked"' : ''} /> <label for="quality-highest">Highest quality</label>
+						<br /><input type="radio" name="quality" value="highestvideo" id="quality-highest" ${
+							req.query.quality == 'highestvideo' ? 'checked="checked"' : ''
+						} /> <label for="quality-highest">Highest quality</label>
 
 						<br /><input type="radio" name="quality" value="1080p" id="quality-1080p" ${req.query.quality == '1080p' ? 'checked="checked"' : ''} /> <label for="quality-1080p">1080p</label>
 
@@ -64,86 +66,86 @@ app.get('/', (req, res) => {
 					</form>
 				</body>
 			</html>
-		`);
-		return;
+		`)
+		return
 	}
 
-	console.log(videoId, 'Getting video');
+	console.log(videoId, 'Getting video')
 
-	var formats = [];
-	let qualityRegex = /^(240|360|480|1080)p$/;
-	let desiredQuality = (req.query.quality && req.query.quality.match(qualityRegex)) ? req.query.quality : 'highestvideo';
+	var formats = []
+	let qualityRegex = /^(240|360|480|1080)p$/
+	let desiredQuality = req.query.quality && req.query.quality.match(qualityRegex) ? req.query.quality : 'highestvideo'
 
-	let options = {};
-	
+	let options = {}
+
 	if (desiredQuality == 'highestvideo') {
 		// tip from https://github.com/fent/node-ytdl-core/issues/770#issuecomment-724210215
-		options = { filter: 'audioandvideo', quality: 'highestvideo' };
+		options = { filter: 'audioandvideo', quality: 'highestvideo' }
 	} else {
 		options = {
 			// why not desiredQuality? Because it needs to be an itag (eg. 137), not resolution (eg. 720p) - and we select quality with the filter
 			quality: 'highest', // 'highestvideo', // desiredQuality,
-			filter: (format) => { 
-				formats.push(`${format.container}-${format.qualityLabel}`);
-				let isVideo = format.hasVideo;
-				let isMatchingFormat = format.container === 'mp4';
-				let isMatchingQuality = true;
+			filter: (format) => {
+				formats.push(`${format.container}-${format.qualityLabel}`)
+				let isVideo = format.hasVideo
+				let isMatchingFormat = format.container === 'mp4'
+				let isMatchingQuality = true
 				if (desiredQuality.match(qualityRegex)) {
-					isMatchingQuality = format.qualityLabel === desiredQuality;
+					isMatchingQuality = format.qualityLabel === desiredQuality
 				}
 				// if (isMatchingQuality && isMatchingFormat) {
 				//		console.log(`Matching format for ${videoId}: ${JSON.stringify(format, null, 2)}`);
 				// }
-				return isMatchingQuality && isMatchingFormat && isVideo;
+				return isMatchingQuality && isMatchingFormat && isVideo
 			},
 			format: req.query.format || undefined,
-		};
+		}
 	}
 	console.log(options)
 
-	const stream = ytdl(videoUrl, options);
+	const stream = ytdl(videoUrl, options)
 
-	var sentError = false;
-	var setInfoHeaders = false;
-	var setResponseHeaders = false;
+	var sentError = false
+	var setInfoHeaders = false
+	var setResponseHeaders = false
 	stream.on('error', (error) => {
-		sentError = true;
-		console.error(JSON.stringify(error, null, 2));
+		sentError = true
+		console.error(JSON.stringify(error, null, 2))
 		if (!setInfoHeaders && !setResponseHeaders) {
-			res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`);
+			res.status(500).send(`Error: ${error ? error.message : 'Unknown error'}.\nSupported formats:\n${formats.join('\n')}`)
 		}
-	});
+	})
 	stream.on('info', (info) => {
 		if (!setInfoHeaders && !sentError) {
 			// info.title;
-			let name = 'yt-' + videoId;
+			let name = 'yt-' + videoId
 			if (info.videoDetails && info.videoDetails.title) {
-				name = slug(info.videoDetails.title);
+				name = slug(info.videoDetails.title)
 			}
-			res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`);
-			// console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2)); 
-			console.log(videoId, 'info', ', name=', name); 
+			res.setHeader('Content-disposition', `attachment; filename=${name}.mp4`)
+			// console.log(videoId, 'info', ', name=', name, ', info=', JSON.stringify(info, null, 2));
+			console.log(videoId, 'info', ', name=', name)
 		}
-		setInfoHeaders = true;
-	});
+		setInfoHeaders = true
+	})
 	stream.on('response', (response) => {
 		if (!setResponseHeaders && !sentError) {
 			if (response.headers['content-length']) {
-				res.setHeader('Content-length', response.headers['content-length']);
+				res.setHeader('Content-length', response.headers['content-length'])
 			}
 			if (response.headers['content-type']) {
-				res.setHeader('Content-type', response.headers['content-type']);
+				res.setHeader('Content-type', response.headers['content-type'])
 			}
-			console.log(videoId, 'response', response.headers['content-type'], response.headers['content-length']);
+			console.log(videoId, 'response', response.headers['content-type'], response.headers['content-length'])
 		}
-		setResponseHeaders = true;
-	});
+		setResponseHeaders = true
+	})
 
-	stream.pipe(res);
-});
+	stream.pipe(res)
+})
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => { 
-	console.log(`Listening on http://localhost:${port}`); 
-	console.log(`Try eg. http://localhost:${port}?url=${encodeURIComponent('https://www.youtube.com/watch?v=e0UWT0dFSQE')}`); 
-});
+const port = process.env.PORT || 3000
+app.listen(port, () => {
+	console.log(`Listening on http://localhost:${port}`)
+	console.log(`Try eg. http://localhost:${port}?url=${encodeURIComponent('https://www.youtube.com/watch?v=e0UWT0dFSQE')}`)
+})

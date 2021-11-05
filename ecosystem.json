@@ -1,26 +1,26 @@
 {
-  "apps": [
-    {
-      "name": "youtube-downloader",
-      "script": "./index.js",
-      "env": {
+	"apps": [
+		{
+			"name": "youtube-downloader",
+			"script": "./index.js",
+			"env": {
 				"PORT": "3345"
-      },
-      "__comment": "env.DEBUG: express:*,*",
-      "env_production": {
-        "NODE_ENV": "production"
-      }
-    }
-  ],
-  "deploy": {
+			},
+			"__comment": "env.DEBUG: express:*,*",
+			"env_production": {
+				"NODE_ENV": "production"
+			}
+		}
+	],
+	"deploy": {
 		"prod": {
 			"host": "159.203.110.15",
 			"port": "22",
-      "user": "www",
-      "ref": "origin/master",
-      "repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
-      "path": "/home/www/youtube-downloader",
-      "post-deploy": "npm ci && /home/www/.local/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /home/www/.local/bin/pm2 save"
-    }
-  }
+			"user": "www",
+			"ref": "origin/master",
+			"repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
+			"path": "/home/www/youtube-downloader",
+			"post-deploy": "npm ci && /home/www/.local/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /home/www/.local/bin/pm2 save"
+		}
+	}
 }
