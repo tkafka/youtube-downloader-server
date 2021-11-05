@@ -20,7 +20,7 @@
       "ref": "origin/master",
       "repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
       "path": "/home/www/youtube-downloader",
-      "post-deploy": "npm ci && /usr/bin/pm2 startOrGracefulReload ./ecosystem.json --env production && /usr/bin/pm2 save"
+      "post-deploy": "npm ci && /home/www/.local/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /home/www/.local/bin/pm2 save"
     }
   }
 }
