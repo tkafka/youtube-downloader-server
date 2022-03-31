@@ -7,7 +7,8 @@
 		"prettier:fix": "./node_modules/.bin/prettier --write './**/*.js' './**/*.jsx' './**/*.ts' './**/*.tsx'  './**/*.json' './**/*.scss'",
 		"prettier:check": "./node_modules/.bin/prettier --list-different './**/*.js' './**/*.jsx' './**/*.ts' './**/*.tsx' './**/*.json' './**/*.scss'",
 		"start": "node index",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"deploy-prod": "pm2 deploy prod"
 	},
 	"author": "",
 	"license": "ISC",
