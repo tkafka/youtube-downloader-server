@@ -14,15 +14,6 @@
 	],
 	"deploy": {
 		"prod": {
-			"host": "159.203.110.15",
-			"port": "22",
-			"user": "www",
-			"ref": "origin/master",
-			"repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
-			"path": "/home/www/youtube-downloader",
-			"post-deploy": "npm ci && /home/www/.local/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /home/www/.local/bin/pm2 save"
-		},
-		"hz": {
 			"host": "5.161.49.185",
 			"port": "22",
 			"user": "www",
@@ -30,6 +21,15 @@
 			"repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
 			"path": "/home/www/youtube-downloader",
 			"post-deploy": "npm ci && /usr/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /usr/bin/pm2 save"
+		},
+		"do": {
+			"host": "159.203.110.15",
+			"port": "22",
+			"user": "www",
+			"ref": "origin/master",
+			"repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
+			"path": "/home/www/youtube-downloader",
+			"post-deploy": "npm ci && /home/www/.local/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /home/www/.local/bin/pm2 save"
 		}
 	}
 }
