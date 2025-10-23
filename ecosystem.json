@@ -14,22 +14,14 @@
 	],
 	"deploy": {
 		"prod": {
-			"host": "5.161.49.185",
+			"host": "157.90.240.227",
 			"port": "22",
 			"user": "www",
 			"ref": "origin/master",
 			"repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
+			"fetch": "fast",
 			"path": "/home/www/youtube-downloader",
-			"post-deploy": "npm ci && /usr/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /usr/bin/pm2 save"
-		},
-		"do": {
-			"host": "159.203.110.15",
-			"port": "22",
-			"user": "www",
-			"ref": "origin/master",
-			"repo": "git@bitbucket.org:tomaskafka/youtube-downloader.git",
-			"path": "/home/www/youtube-downloader",
-			"post-deploy": "npm ci && /home/www/.local/bin/pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && /home/www/.local/bin/pm2 save"
+			"post-deploy": "npm ci && pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && pm2 save"
 		}
 	}
 }
