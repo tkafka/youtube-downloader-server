@@ -21,7 +21,7 @@
 			"repo": "git@github.com:tkafka/youtube-downloader-server.git",
 			"fetch": "fast",
 			"path": "/home/www/youtube-downloader",
-			"post-deploy": "npm ci && pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && pm2 save"
+			"post-deploy": "pnpm install --frozen-lockfile && pm2 startOrGracefulReload ./ecosystem.json --env production --update-env && pm2 save"
 		}
 	}
 }
